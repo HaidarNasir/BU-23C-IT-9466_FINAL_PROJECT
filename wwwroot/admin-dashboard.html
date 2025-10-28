@@ -1,0 +1,436 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIMS - Admin Dashboard</title>
+    <link rel="stylesheet" href="admin-dashboard.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">🔒 PIMS - ADMIN DASHBOARD</div>
+        <div class="navbar-user">
+            <span id="userInfo">Welcome, Admin</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="active" onclick="showSection('dashboard')">📊 Admin Overview</li>
+            <li onclick="showSection('complaints')">📋 All Complaints</li>
+            <li onclick="showSection('suspects')">👤 All Suspects</li>
+            <li onclick="showSection('users')">👥 User Management</li>
+            <li onclick="showSection('reports')">📈 System Reports</li>
+            <li onclick="showSection('audit')">🔍 Audit Logs</li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <!-- Admin Overview Section -->
+        <div id="dashboard" class="content-section active">
+            <h2 class="section-title">🛡️ Admin System Overview</h2>
+
+            <div class="stats-grid">
+                <div class="stat-card admin-card">
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card admin-card">
+                    <div class="stat-number" id="totalComplaints">0</div>
+                    <div class="stat-label">Total Complaints</div>
+                </div>
+                <div class="stat-card admin-card">
+                    <div class="stat-number" id="totalSuspects">0</div>
+                    <div class="stat-label">Total Suspects</div>
+                </div>
+                <div class="stat-card admin-card">
+                    <div class="stat-number" id="activeCases">0</div>
+                    <div class="stat-label">Active Cases</div>
+                </div>
+            </div>
+
+            <div class="admin-panels">
+                <div class="admin-panel">
+                    <h3>📈 System Health</h3>
+                    <div class="health-item">
+                        <span>Database Status:</span>
+                        <span class="status-good">✅ Connected</span>
+                    </div>
+                    <div class="health-item">
+                        <span>Server Uptime:</span>
+                        <span class="status-good">🟢 Operational</span>
+                    </div>
+                    <div class="health-item">
+                        <span>Last Backup:</span>
+                        <span id="lastBackup">Loading...</span>
+                    </div>
+                    <div class="health-item">
+                        <span>System Version:</span>
+                        <span class="status-good">v2.2.0</span>
+                    </div>
+                </div>
+
+                <div class="admin-panel">
+                    <h3>🚨 Recent Activity</h3>
+                    <div id="recentActivity">
+                        <!-- Recent activity will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Complaints Section (Admin View) -->
+        <div id="complaints" class="content-section">
+            <h2 class="section-title">📋 All System Complaints</h2>
+            <div class="admin-actions">
+                <button class="btn btn-primary" onclick="exportComplaints()">Export to CSV</button>
+                <button class="btn btn-warning" onclick="showComplaintStats()">View Statistics</button>
+                <button class="btn btn-success" onclick="refreshComplaints()">Refresh Data</button>
+            </div>
+
+            <table id="complaintsTable">
+                <thead>
+                    <tr>
+                        <th>Case Number</th>
+                        <th>Complainant</th>
+                        <th>Crime Type</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Assigned Officer</th>
+                        <th>Date Reported</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Complaints will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Suspects Section (Admin View) -->
+        <div id="suspects" class="content-section">
+            <h2 class="section-title">👤 All System Suspects</h2>
+            <div class="admin-actions">
+                <button class="btn btn-primary" onclick="exportSuspects()">Export to CSV</button>
+                <button class="btn btn-success" onclick="refreshSuspects()">Refresh Data</button>
+            </div>
+
+            <table id="suspectsTable">
+                <thead>
+                    <tr>
+                        <th>Suspect ID</th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>Date of Birth</th>
+                        <th>Identification</th>
+                        <th>Date Added</th>
+                        <th>Related Cases</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Suspects will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- User Management Section (Admin Only) -->
+        <div id="users" class="content-section">
+            <h2 class="section-title">👥 User Management</h2>
+
+            <div class="admin-actions">
+                <button class="btn btn-primary" onclick="showUserForm()">Add New User</button>
+                <button class="btn btn-warning" onclick="refreshUsers()">Refresh Users</button>
+            </div>
+
+            <div id="userForm" style="display: none; margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3>➕ Add New User</h3>
+                <form id="newUserForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" name="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Username *</label>
+                            <input type="text" name="username" required>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Password *</label>
+                            <input type="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Role *</label>
+                            <select name="role" id="roleSelect" required onchange="checkBranchHeadAvailability()">
+                                <option value="">Select Role</option>
+                                <option value="admin">Admin</option>
+                                <option value="branch_head">Branch Head</option>
+                                <option value="investigator">Investigator</option>
+                                <option value="constable">Constable</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Station *</label>
+                            <select name="station" id="stationSelect" required onchange="checkBranchHeadAvailability()">
+                                <option value="">Select Station</option>
+                                <option value="Maitama Branch">Maitama Branch</option>
+                                <option value="Gwarinpa Branch">Gwarinpa Branch</option>
+                                <option value="Police Headquarters">Police Headquarters</option>
+                            </select>
+                            <div id="branchHeadWarning" style="display: none; margin-top: 5px;">
+                                <small style="color: #dc3545; font-weight: bold;">⚠️ This branch already has a branch head</small>
+                            </div>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: end;">
+                            <button type="submit" class="btn btn-success" style="width: 100%;" id="createUserBtn">✅ Create User</button>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-warning" onclick="hideUserForm()">❌ Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Edit User Form -->
+            <div id="editUserForm" style="display: none; margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3>✏️ Edit User</h3>
+                <form id="updateUserForm">
+                    <input type="hidden" id="editUserId" name="id">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" id="editFullName" name="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="editUsername" name="username" readonly style="background-color: #e9ecef;">
+                            <small style="color: #666;">Username cannot be changed</small>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Role *</label>
+                            <select name="role" id="editRoleSelect" required onchange="checkEditBranchHeadAvailability()">
+                                <option value="">Select Role</option>
+                                <option value="admin">Admin</option>
+                                <option value="branch_head">Branch Head</option>
+                                <option value="investigator">Investigator</option>
+                                <option value="constable">Constable</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Station *</label>
+                            <select name="station" id="editStationSelect" required onchange="checkEditBranchHeadAvailability()">
+                                <option value="">Select Station</option>
+                                <option value="Maitama Branch">Maitama Branch</option>
+                                <option value="Gwarinpa Branch">Gwarinpa Branch</option>
+                                <option value="Police Headquarters">Police Headquarters</option>
+                            </select>
+                            <div id="editBranchHeadWarning" style="display: none; margin-top: 5px;">
+                                <small style="color: #dc3545; font-weight: bold;">⚠️ This branch already has a branch head</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success" id="updateUserBtn">💾 Update User</button>
+                        <button type="button" class="btn btn-warning" onclick="hideEditUserForm()">❌ Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <table id="usersTable">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Role</th>
+                        <th>Station</th>
+                        <th>Date Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Users will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Reports Section (Admin Enhanced) -->
+        <div id="reports" class="content-section">
+            <h2 class="section-title">📈 System Reports</h2>
+
+            <div class="admin-actions">
+                <button class="btn btn-primary" onclick="generateReport()">Generate Report</button>
+                <button class="btn btn-success" onclick="exportReport()">Export Report</button>
+                <button class="btn btn-warning" onclick="refreshReports()">Refresh Data</button>
+            </div>
+
+            <div class="report-filters">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="form-group">
+                    <label>Report Type</label>
+                    <select id="reportType">
+                        <option value="all">All Data</option>
+                        <option value="complaints">Complaints Only</option>
+                        <option value="users">User Activity</option>
+                        <option value="system">System Overview</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="reportTotalComplaints">0</div>
+                    <div class="stat-label">Total Complaints</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="reportUnderInvestigation">0</div>
+                    <div class="stat-label">Under Investigation</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="reportChargedCases">0</div>
+                    <div class="stat-label">Charged Cases</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="reportClosedCases">0</div>
+                    <div class="stat-label">Closed Cases</div>
+                </div>
+            </div>
+
+            <div class="admin-panels">
+                <div class="admin-panel">
+                    <h3>📊 Crime Statistics</h3>
+                    <div style="padding: 1rem; text-align: center; background: white; border-radius: 10px; margin-top: 1rem;">
+                        <canvas id="crimeChart" width="400" height="200"></canvas>
+                        <p style="color: #666; margin-top: 1rem;">Crime distribution and trends analysis</p>
+                    </div>
+                </div>
+
+                <div class="admin-panel">
+                    <h3>📈 Performance Metrics</h3>
+                    <div class="health-item">
+                        <span>Avg. Resolution Time:</span>
+                        <span id="avgResolutionTime">Loading...</span>
+                    </div>
+                    <div class="health-item">
+                        <span>Case Clearance Rate:</span>
+                        <span id="clearanceRate">Loading...</span>
+                    </div>
+                    <div class="health-item">
+                        <span>Active Investigations:</span>
+                        <span id="activeInvestigations">Loading...</span>
+                    </div>
+                    <div class="health-item">
+                        <span>User Activity Level:</span>
+                        <span class="status-good">High</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Logs Section (Admin Only) -->
+        <div id="audit" class="content-section">
+            <h2 class="section-title">🔍 System Audit Logs</h2>
+
+            <div class="admin-actions">
+                <button class="btn btn-primary" onclick="loadAuditLogs()">Refresh Logs</button>
+                <button class="btn btn-warning" onclick="clearAuditFilters()">Clear Filters</button>
+                <button class="btn btn-success" onclick="exportAuditLogs()">Export Logs</button>
+            </div>
+
+            <div class="audit-filters">
+                <div class="form-group">
+                    <label>Filter by User:</label>
+                    <select id="auditUserFilter">
+                        <option value="">All Users</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Filter by Action:</label>
+                    <select id="auditActionFilter">
+                        <option value="">All Actions</option>
+                        <option value="login">Login</option>
+                        <option value="logout">Logout</option>
+                        <option value="create">Create</option>
+                        <option value="update">Update</option>
+                        <option value="delete">Delete</option>
+                        <option value="close">Close Case</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date Range:</label>
+                    <input type="date" id="auditStartDate">
+                    <span>to</span>
+                    <input type="date" id="auditEndDate">
+                </div>
+            </div>
+
+            <table id="auditTable">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Description</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Audit logs will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- NEW: Suspect Details Modal -->
+    <div id="suspectDetailsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 10px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0; color: #1e3c72;">👤 Suspect Details</h3>
+                <button onclick="closeSuspectDetails()" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">✕ Close</button>
+            </div>
+
+            <div id="suspectDetailsContent">
+                <!-- Suspect details will be loaded here -->
+            </div>
+
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <button onclick="closeSuspectDetails()" class="btn btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Complaint Details Modal -->
+    <div id="complaintDetailsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 10px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0; color: #1e3c72;">📋 Complaint Details</h3>
+                <button onclick="closeComplaintDetails()" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">✕ Close</button>
+            </div>
+
+            <div id="complaintDetailsContent">
+                <!-- Complaint details will be loaded here -->
+            </div>
+
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <button onclick="closeComplaintDetails()" class="btn btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin-dashboard.js"></script>
+</body>
+</html>

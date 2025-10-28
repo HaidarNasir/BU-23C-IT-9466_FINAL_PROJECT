@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Police Case Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+            button:hover {
+                background-color: #2980b9;
+            }
+
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            min-height: 80px;
+            border-left: 5px solid #3498db;
+        }
+
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+
+            .status.working {
+                background: #d4edda;
+                color: #155724;
+            }
+
+            .status.error {
+                background: #f8d7da;
+                color: #721c24;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Police Case Management System</h1>
+        <p><strong>Final Year Project - System Testing</strong></p>
+
+        <div class="test-section">
+            <h2>1. Frontend Test</h2>
+            <p>Tests if HTML, CSS, and JavaScript are working correctly in your browser.</p>
+            <button onclick="testFrontend()">Test Frontend (JavaScript)</button>
+        </div>
+
+        <div class="test-section">
+            <h2>2. Backend API Test</h2>
+            <p>Tests if the C# backend is running and responding to requests.</p>
+            <button onclick="testBackend()">Test C# Backend API</button>
+        </div>
+
+        <div class="test-section">
+            <h2>3. Database Connection Test</h2>
+            <p>Tests if the application can connect to MySQL database (pims_db) through XAMPP.</p>
+            <button onclick="testDatabase()">Test Database Connection</button>
+        </div>
+
+        <div id="result">
+            <h3>Test Results:</h3>
+            <p>Click the buttons above to run tests. Results will appear here.</p>
+        </div>
+
+        <div style="margin-top: 30px; padding: 15px; background: #fff3cd; border-radius: 5px;">
+            <h3>📋 Before Testing Database:</h3>
+            <ol>
+                <li>Open <strong>XAMPP Control Panel</strong></li>
+                <li>Start <strong>Apache</strong> and <strong>MySQL</strong> (click Start buttons)</li>
+                <li>Verify MySQL is running (should show green "Stop" button)</li>
+                <li>Database name should be: <strong>pims_db</strong></li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Test JavaScript functionality
+        function testFrontend() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                    <h3>Test Results:</h3>
+                    <p><span class="success">✅ Frontend JavaScript is working perfectly!</span></p>
+                    <p><strong>Details:</strong> HTML, CSS, and JavaScript are all functioning correctly in your browser.</p>
+                `;
+        }
+
+        // Test backend connection
+        async function testBackend() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<h3>Test Results:</h3><p>Testing backend connection...</p>`;
+
+            try {
+                const response = await fetch('/api/test');
+                if (response.ok) {
+                    const data = await response.text();
+                    resultDiv.innerHTML = `
+                            <h3>Test Results:</h3>
+                            <p><span class="success">✅ Backend API is working perfectly!</span></p>
+                            <p><strong>Response from C# Backend:</strong> ${data}</p>
+                            <p><strong>Status:</strong> <span class="status working">BACKEND ONLINE</span></p>
+                        `;
+                } else {
+                    resultDiv.innerHTML = `
+                            <h3>Test Results:</h3>
+                            <p><span class="error">❌ Backend returned error status: ${response.status}</span></p>
+                            <p>Check if the C# application is running properly.</p>
+                        `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                        <h3>Test Results:</h3>
+                        <p><span class="error">❌ Cannot connect to backend: ${error.message}</span></p>
+                        <p>Make sure your application is running and try again.</p>
+                    `;
+            }
+        }
+
+        // Test database connection
+        async function testDatabase() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<h3>Test Results:</h3><p>Testing database connection...</p>`;
+
+            try {
+                const response = await fetch('/api/test/testdb');
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                            <h3>Test Results:</h3>
+                            <p><span class="success">✅ Database connection successful!</span></p>
+                            <p><strong>Message:</strong> ${data.message}</p>
+                            <p><strong>Database:</strong> ${data.database}</p>
+                            <p><strong>Time:</strong> ${data.timestamp}</p>
+                            <p><strong>Status:</strong> <span class="status working">DATABASE CONNECTED</span></p>
+                        `;
+                } else {
+                    const errorData = await response.json();
+                    resultDiv.innerHTML = `
+                            <h3>Test Results:</h3>
+                            <p><span class="error">❌ Database test failed with status: ${response.status}</span></p>
+                            <p><strong>Error:</strong> ${errorData.error}</p>
+                            <p><strong>Details:</strong> ${errorData.message}</p>
+                            <p><strong>Suggestion:</strong> ${errorData.suggestion || 'Check XAMPP and database configuration'}</p>
+                        `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                        <h3>Test Results:</h3>
+                        <p><span class="error">❌ Cannot test database: ${error.message}</span></p>
+                        <p>This usually means the /api/test/testdb endpoint is not found (404).</p>
+                        <p><strong>Check these things:</strong></p>
+                        <ul>
+                            <li>Is the TestController.cs file in the Controllers folder?</li>
+                            <li>Does the controller class match your project name (PoliceCaseManagementSystem)?</li>
+                            <li>Is the route correctly set to [Route("api/[controller]")]?</li>
+                            <li>Have you built the solution after making changes?</li>
+                        </ul>
+                    `;
+            }
+        }
+    </script>
+</body>
+</html>
